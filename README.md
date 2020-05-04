@@ -74,5 +74,5 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
 手势使用了hammerjs库，特别感谢[hammerjs](https://github.com/hammerjs/hammerjs.github.io)
 
 6.演示地址
-[gh-pages]（https://superchangme.github.io/ImageCropping/）
+[gh-pages](https://superchangme.github.io/ImageCropping/)
 
