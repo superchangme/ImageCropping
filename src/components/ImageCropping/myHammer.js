@@ -47,9 +47,12 @@ function Myhammer(canvas, opts) {
   var hammertime = mc
   mc.add(new Hammer.Pan({ threshold: 0, pointers: 0 }))
   // mc.add(new Hammer.Swipe()).recognizeWith(mc.get('pan'))
-  // mc.add(new Hammer.Rotate({ threshold: 0 })).recognizeWith(mc.get('pan'))
-  // mc.add(new Hammer.Pinch({ threshold: 0 })).recognizeWith([mc.get('pan'), mc.get('rotate')])
-  hammertime.on('panstart panmove panend', hammerFn)
+  if (opts.enableRotate) {
+    mc.add(new Hammer.Rotate({ threshold: 0 })).recognizeWith(mc.get('pan'))
+    mc.add(new Hammer.Pinch({ threshold: 0 })).recognizeWith([mc.get('pan'), mc.get('rotate')])
+  }
+  this.gestureNames = 'panstart panmove panend'+ ( opts.enableRotate?' rotatemove': '' )
+  hammertime.on(this.gestureNames, hammerFn)
   this.hammertime = hammertime
   function hammerFn(ev) {
     if (!self.isStop) {
@@ -64,26 +67,34 @@ function Myhammer(canvas, opts) {
     switch (ev.type) {
       case 'panstart':
         last_scale = self.scale
-        last_rotation = self.rotation
+        // last_rotation = self.rotation
         break
       case 'panmove':
         var x = ev.deltaX / self.scale
         var y = ev.deltaY / self.scale
-        if (self.rotation % 180 != 0) {
-          x = [y, (y = x)][0]
-        }
-        if (self.rotation == 90 || self.rotation == 180) {
-          y = -y
-        }
-        if (self.rotation == 180 || self.rotation == 270) {
-          x = -x
-        }
+        var coordRad=Math.atan2(-y,x);
+        var radius=Math.sqrt(y*y+x*x)
+        x=Math.sin(Math.PI/2-coordRad-Math.PI*(self.rotation)/180)*radius
+        y=-Math.cos(Math.PI/2-coordRad-Math.PI*(self.rotation)/180)*radius
+        // if (self.rotation % 180 != 0) {
+        //   x = [y, (y = x)][0]
+        // }
+        // if (self.rotation == 90 || self.rotation == 180) {
+        //   y = -y
+        // }
+        // if (self.rotation == 180 || self.rotation == 270) {
+        //   x = -x
+        // }
+
         posX = x + self.lastPosX
         posY = y + self.lastPosY
-        opts.gestureCb.call(self, { x: posX, y: posY, scale: last_scale, rotate: last_rotation })
+        opts.gestureCb.call(self, { x: posX, y: posY, scale: last_scale, rotate: self.rotation })
         break
       case 'rotatemove':
-        self.rotation = last_rotation + ev.rotation
+        if (last_rotation!=null){
+          self.rotation = self.rotation + (ev.rotation - last_rotation)
+        }
+        last_rotation = ev.rotation
         // self.rotation = last_rotation ;
         self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
         opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation })
@@ -91,6 +102,8 @@ function Myhammer(canvas, opts) {
       case 'panend':
         self.lastPosX = posX
         self.lastPosY = posY
+        last_scale = self.scale
+        last_rotation = null
         if (opts.dragendCb) {
           opts.dragendCb.call(self)
         }
@@ -101,7 +114,7 @@ function Myhammer(canvas, opts) {
     posX = 0; posY = 0
     this.lastPosX = 0; this.lastPosY = 0
     bufferX = 0; bufferY = 0
-    this.scale = 1; last_scale = 1; this.rotation = 0; last_rotation = 0
+    this.scale = 1; last_scale = 1; this.rotation = 0; last_rotation = null
   }
 }
 Myhammer.prototype.stop = function() {
@@ -147,7 +160,7 @@ Myhammer.prototype.setScale = function(option) {
 }
 
 Myhammer.prototype.destroy = function() {
-  this.hammertime.off('panstart panmove panend', this.hammerFn)
+  this.hammertime.off(this.gestureNames, this.hammerFn)
   this.option.element.removeEventListener('mousewheel', this.setScaleBind, { passive: false })
 }
 

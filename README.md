@@ -62,6 +62,8 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
   onError：图片加载失败 （图片不符合要求时给的提示语）
   uploadSuccess:图片上传成功回调,
   outxy:图片露底边的距离，outx：左右可露的距离，outy：上下可露的距离，默认不露底边
+  dataBackground:图片背景默认白色
+  dataRotate:是否要支持自由旋转（仅支持移动端）
 ```
 
 4. 一些说明
@@ -73,6 +75,6 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
 5. 感谢
 手势使用了hammerjs库，特别感谢[hammerjs](https://github.com/hammerjs/hammerjs.github.io)
 
-6.演示地址
+6. 演示地址
 [gh-pages](https://superchangme.github.io/ImageCropping/)
 
