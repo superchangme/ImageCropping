@@ -1,7 +1,7 @@
 <template>
   <div>
     <img :src='cropYou'>
-    <el-button @click='showCrop' class="crop-btn">showCrop</el-button>
+    <el-button @click='showCrop' class="crop-btn">uploadImage</el-button>
     <ImageCrop :isBoundCheck='false' :dataShow='dataShow' :dataRotate='true'
     @onHide='dataShow=0' @onSuccess='onSuccess'></ImageCrop>
   </div>

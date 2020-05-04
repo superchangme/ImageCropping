@@ -25,6 +25,9 @@ a{
   display: inline-block;
   margin: 0 30px 30px 0;
 }
+.router-link-exact-active{
+  color: orange;
+}
 .crop-btn{
     display: block;
     margin: 0 auto;
