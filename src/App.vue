@@ -1,18 +1,14 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id='app'>
+  <router-link to="/">普通上传裁剪</router-link>
+  <router-link to="/cropImage">已有图片裁剪</router-link>
+  <keep-alive><router-view/></keep-alive>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'app',
-  components: {
-    HelloWorld
-  }
+
 }
 </script>
 
@@ -24,5 +20,13 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+a{
+  display: inline-block;
+  margin: 0 30px 30px 0;
+}
+.crop-btn{
+    display: block;
+    margin: 0 auto;
 }
 </style>
