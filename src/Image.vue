@@ -3,7 +3,7 @@
     <img :src='cropYou'>
     <el-button @click='showCrop' class="crop-btn">showCrop</el-button>
     <ImageCrop :isBoundCheck='false' :dataShow='dataShow' dataTitle='裁剪照片'
-    :dataFromUrl='true' :dataImgSrc='cropImage' 
+    :dataFromUrl='true' :dataImgSrc='cropImage' dataBackground='#000'
     @onHide='dataShow=0' @onSuccess='onSuccess'></ImageCrop>
   </div>
 </template>
