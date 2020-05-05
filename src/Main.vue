@@ -1,9 +1,9 @@
 <template>
   <div>
-    <img :src='cropYou'>
+    <img :src='cropYou' width=300>
     <el-button @click='showCrop' class="crop-btn">uploadImage</el-button>
-    <ImageCrop :isBoundCheck='false' :dataShow='dataShow' :dataRotate='true'
-    @onHide='dataShow=0' @onSuccess='onSuccess'></ImageCrop>
+    <ImageCrop :isBoundCheck='false' :dataShow='dataShow' :dataEnableRatio='true' :dataRotate='true' :limitSize='20480*1000'
+    @onHide='dataShow=false' @onSuccess='onSuccess'></ImageCrop>
   </div>
 </template>
 
@@ -13,16 +13,16 @@ export default {
   name: 'Main',
   data(){
     return {
-      dataShow: 0,
+      dataShow: false,
       cropYou:null
     }
   },
   methods:{
     showCrop(){
-      this.dataShow ++
+      this.dataShow=true
     },
     onSuccess(data){
-      this.dataShow =0 
+      this.dataShow =false
       this.cropYou = data.base64
     }
   },

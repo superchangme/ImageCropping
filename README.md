@@ -64,6 +64,7 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
   outxy:图片露底边的距离，outx：左右可露的距离，outy：上下可露的距离，默认不露底边
   dataBackground:图片背景默认白色
   dataRotate:是否要支持自由旋转（仅支持移动端）
+  dataEnableRatio:是否需要高清图片（启用后可适配设备的deviceRatio得到高清图）
 ```
 
 4. 一些说明

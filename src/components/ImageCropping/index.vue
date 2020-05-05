@@ -117,6 +117,10 @@ import _$ from 'jquery'
 import T from './index.js'
 export default {
   props: {
+    dataEnableRatio:{
+      default: false,
+      type: Boolean
+    },
     dataRotate:{
       default: false,
       type: Boolean
@@ -130,7 +134,8 @@ export default {
       type: String
     },
     dataShow: {
-      type: Number
+      type: Boolean,
+      default: false
     },
     dataWidth: {
       type: Number,
@@ -218,11 +223,7 @@ export default {
       },50)
     },
     dataShow: function(nval) {
-      // debugger
-      // console.log('6+')
       if (nval) {
-        // this.hasSaved = false
-        // console.log(this.hasSaved)
         this.showDialog = true
         _$(this.$refs.uploadDialog.$el).addClass('hide-element')
         if (this.dataFromUrl) {
@@ -233,7 +234,6 @@ export default {
         this.previewSrc = ''
         return
       } else {
-        // this.customClass = 'cropping-dialog'
         this.showCropBody = false
         this.hasSaved = false
         this.onceOnload = false
@@ -435,7 +435,7 @@ export default {
         bindFile: bindFile, // 绑定Input file
         //            bindFile:$needCropImg[0],// 绑定一个图片
         
-        enableRatio: false, // 是否启用高清,高清得到的图片会比较大
+        enableRatio: self.enableRatio, // 是否启用高清,高清得到的图片会比较大
         canvas: $photoCanvas[0], // 放一个canvas对象
         cropWidth: opts.cropWidth, // 剪切大小
         cropHeight: opts.cropHeight,
@@ -636,6 +636,7 @@ export default {
         minScale: 0.5,
         minscaleDisabled: false,
         maxScale: 3,
+        enableRatio: self.dataEnableRatio,
         enableRotate:self.dataRotate,
         enableMouseWheel: true,
         element: $photoCanvas[0],

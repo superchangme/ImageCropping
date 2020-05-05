@@ -40,6 +40,7 @@ function Myhammer(canvas, opts) {
   this.scale = 1
   this.hammertime = ''
   this.hammerFn = hammerFn
+  this.ratio = opts.enableRatio ? (opts.devicePixelRatio || window.devicePixelRatio) : 1
   var posX = 0, posY = 0,
     bufferX = 0, bufferY = 0,
     last_scale = 1, last_rotation, dragReady = 0, self = this
@@ -70,8 +71,8 @@ function Myhammer(canvas, opts) {
         // last_rotation = self.rotation
         break
       case 'panmove':
-        var x = ev.deltaX / self.scale
-        var y = ev.deltaY / self.scale
+        var x = ev.deltaX / self.scale * self.ratio
+        var y = ev.deltaY / self.scale * self.ratio
         var coordRad=Math.atan2(-y,x);
         var radius=Math.sqrt(y*y+x*x)
         x=Math.sin(Math.PI/2-coordRad-Math.PI*(self.rotation)/180)*radius
