@@ -1,15 +1,15 @@
 <template>
-  <div class="components-uploadPage-app" ref="uploadPage" v-show="showCropBody">
+  <div class="components-uploadPage-app"  ref="uploadPage" v-show='showCropBody'>
     <input
       class="upload-file"
       ref="inputFile"
       type="file"
       v-show="false"
-      :accept="acceptType+';capture=camera'"
+      accept="image/*;capture=camera"
     />
 
     <el-dialog
-      :custom-class="customClass"
+      :custom-class="customClass +' ' + (dataCircle?'circleModel':'')"
       :width="(dataWidth+40)+'px'"
       :title="dataTitle"
       :append-to-body="true"
@@ -112,11 +112,16 @@
   outxy:图片露底边的距离，outx：左右可露的距离，outy：上下可露的距离，默认不露底边
   dataBackground:图片背景默认白色
   dataRotate:是否要支持自由旋转（仅支持移动端）
+  dataCircle:是否裁剪为圆
  */
 import _$ from 'jquery'
 import T from './index.js'
 export default {
   props: {
+    dataCircle:{
+      default: false,
+      type: Boolean
+    },
     dataEnableRatio:{
       default: false,
       type: Boolean
@@ -206,16 +211,21 @@ export default {
       // imgErr: false
     }
   },
-  computed: {
-    acceptType() {
-      const limitTypeArr = this.limitType.split(',')
-      return limitTypeArr
-        .map(item => {
-          return 'image/' + item
-        })
-        .join(',')
-    }
-  },
+  // computed: {
+  //   acceptType() {
+  //     const limitTypeArr = this.limitType.split(',')
+  //     console.log(limitTypeArr
+  //       .map(item => {
+  //         return 'image/' + item
+  //       })
+  //       .join(','))
+  //     return limitTypeArr
+  //       .map(item => {
+  //         return 'image/' + item
+  //       })
+  //       .join(',')
+  //   }
+  // },
   watch: {
     dataImgSrc: function(nval,oval){
       setTimeout(()=>{
@@ -435,7 +445,8 @@ export default {
         bindFile: bindFile, // 绑定Input file
         //            bindFile:$needCropImg[0],// 绑定一个图片
         
-        enableRatio: self.enableRatio, // 是否启用高清,高清得到的图片会比较大
+        enableRatio: self.dataEnableRatio, // 是否启用高清,高清得到的图片会比较大
+        isCircle: self.dataCircle, // 是否裁剪为圆形
         canvas: $photoCanvas[0], // 放一个canvas对象
         cropWidth: opts.cropWidth, // 剪切大小
         cropHeight: opts.cropHeight,
@@ -729,7 +740,7 @@ export default {
       this.photoCanvas.hammer('destroy')
       this.photoCanvas.off('mousedown', this.mousedownFn)
     }
-    this.document.off('mouseup', this.mouseupFn)
+    this.document && this.document.off('mouseup', this.mouseupFn)
     this.eldialogwrapper && this.eldialogwrapper.off('mousemove mousedown', this.mousemoveFn)
   },
   mounted() {}
@@ -804,6 +815,14 @@ export default {
   //   display: inline-block!important;
   //   z-index: 1998;
   // }
+  .preview-wrapper{
+    border: 4px solid #0094f5;
+    box-sizing: content-box;
+  }
+  &.circleModel .preview-wrapper{
+    border-radius: 50%;
+    overflow: hidden;
+  }
   .upload-main {
     position: relative;
 
@@ -825,17 +844,17 @@ export default {
       position: relative;
       margin:0 auto;
     }
-    .preview-wrapper:before {
-      content: '';
-      position: absolute;
-      left: -4px;
-      right: -4px;
-      top: -4px;
-      bottom: -4px;
-      border: 4px solid rgb(0, 148, 245);
-      border-radius: 4px;
-      background: white;
-    }
+    // .preview-wrapper:before {
+    //   content: '';
+    //   position: absolute;
+    //   left: -4px;
+    //   right: -4px;
+    //   top: -4px;
+    //   bottom: -4px;
+    //   border: 4px solid rgb(0, 148, 245);
+    //   border-radius: 4px;
+    //   background: white;
+    // }
     #preview {
       display: block;
       background: white;

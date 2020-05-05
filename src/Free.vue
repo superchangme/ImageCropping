@@ -1,8 +1,8 @@
 <template>
   <div>
     <img :src='cropYou' width=300>
-    <el-button @click='showCrop' class="crop-btn">uploadPhoto</el-button>
-    <ImageCrop :isBoundCheck='true' :dataCircle='true' :dataEnableRatio='true' :dataShow='dataShow' :limitSize='20480*1000'
+    <el-button @click='showCrop' class="crop-btn">uploadImage</el-button>
+    <ImageCrop :dataShow='dataShow' :dataEnableRatio='true' :dataRotate='true' :limitSize='20480*1000'
     @onHide='dataShow=false' @onSuccess='onSuccess' @onError='onError'></ImageCrop>
   </div>
 </template>

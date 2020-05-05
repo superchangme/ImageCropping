@@ -1,6 +1,7 @@
 <template>
   <div id='app'>
-  <router-link to="/">普通上传裁剪</router-link>
+  <router-link to="/">上传头像裁剪</router-link>
+  <router-link to="/free">自由旋转裁剪</router-link>
   <router-link to="/cropImage">已有图片裁剪</router-link>
   <keep-alive><router-view/></keep-alive>
   </div>
@@ -23,7 +24,7 @@ export default {
 }
 a{
   display: inline-block;
-  margin: 0 30px 30px 0;
+  margin: 0 15px 15px 0;
 }
 .router-link-exact-active{
   color: orange;

@@ -36,6 +36,11 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
 ```javascript
  <ImageCrop :isBoundCheck='true' :dataShow='dataShow' @onHide='dataShow=0' @onSuccess='onSuccess'></ImageCrop>
 ```
+1.1 自由旋转裁剪 (upload image and crop) -参考文件src/Free.vue
+```javascript
+ <ImageCrop :isBoundCheck='false' :dataRotate='true' :dataShow='dataShow' @onHide='dataShow=0' @onSuccess='onSuccess'></ImageCrop>
+```
+
 2. 裁剪已有图片 (crop your image) -参考文件src/Image.vue
 ```javascript
     <ImageCrop :isBoundCheck='true' :dataShow='dataShow' dataTitle='裁剪照片'
@@ -65,6 +70,7 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
   dataBackground:图片背景默认白色
   dataRotate:是否要支持自由旋转（仅支持移动端）
   dataEnableRatio:是否需要高清图片（启用后可适配设备的deviceRatio得到高清图）
+  dataCircle: 是否裁剪为圆形 （一般用于移动端头像）
 ```
 
 4. 一些说明

@@ -75,7 +75,7 @@ _.cropImage = function(opts) {
     } else if ($(opts.bindFile).is('input[type=file]')) {
       opts.bindFile.attr('cropid', ++_.cropImage.id)
       setCropStyle({ x: 0, y: 0, scale: 1 })
-      $(document).delegate('[cropid=' + _.cropImage.id + ']', 'change', function() {
+      $(document).on( 'change','[cropid=' + _.cropImage.id + ']', function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         opts.bindFile.after(opts.bindFile = opts.bindFile.clone().val('')).remove()
         if (this.files && this.files.length) {
@@ -186,8 +186,15 @@ _.cropImage = function(opts) {
     //, 0,0,G.preview.width*G.scale, G.preview.height*G.scale);//,0,0, G.preview.width*G.scale, G.preview.height*G.scale);
     ctx.restore()
     // console.log(offsetX, offsetY, x, y, o.dWidth, o.dHeight)
+    if (opts.isCircle) {
+      ctx.save()
+      ctx.globalCompositeOperation="destination-in";
+      ctx.arc(canvas.width/2,canvas.height/2,canvas.width/2,0,Math.PI*2)
+      ctx.fill()
+      ctx.restore()
+    }
+    result = canvas.toDataURL('image/' + (option.type ? option.type : opts.isCircle?'png':'jpeg'))
 
-    result = canvas.toDataURL('image/' + (option.type ? option.type : 'jpeg'))
     if (option.lowDpi && opts.enableRatio) {
       canvas.width *= opts.devicePixelRatio
       canvas.height *= opts.devicePixelRatio
@@ -207,7 +214,7 @@ _.cropImage = function(opts) {
             dfd.resolve(blob)
           }
         }
-        , 'image/' + (option.type ? option.type : 'jpeg'), quality)
+        , 'image/' + (option.type ? option.type : opts.isCircle?'png':'jpeg'), quality)
     }
     var that = this,
       dfd = $.Deferred()
