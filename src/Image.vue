@@ -30,6 +30,10 @@ export default {
       this.dataShow =false
       this.cropYou = data.base64
       this.cropImage = null
+    },
+    onHide(){
+        this.cropImage = null
+        this.dataShow = false
     }
   },
   components: {

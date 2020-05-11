@@ -73,6 +73,13 @@
                   title="旋转"
                 ></i>
               </div>
+              <div>
+                 <i
+                  class="tomiconfont icon_chexiao"
+                  @click="resetImg"
+                  title="撤销"
+                ></i>
+              </div>
             </div>
           </div>
           <div class="crop-btns" slot="footer">
@@ -229,6 +236,7 @@ export default {
   watch: {
     dataImgSrc: function(nval,oval){
       setTimeout(()=>{
+        this.isLoading = true
         this.imgSrc = nval
       },50)
     },
@@ -258,6 +266,7 @@ export default {
     }
   },
   methods: {
+    resetImg(){},
     openChooseFile() {
       if (this.isInit) {
         this.clickChooseFile()
@@ -505,10 +514,6 @@ export default {
             yOffset = -data.y
             self.previewStyle.y = yOffset
           }
-          self.photoCanvas.hammer('setLastPos', {
-            x: self.previewStyle.x,
-            y: self.previewStyle.y
-          })
           $previewView
             .css({
               width: opts.cropWidth * data.ratio,
@@ -520,6 +525,23 @@ export default {
             .attr('src', data.originSrc)
             .css({ width: data.width, height: data.height })
             .css(transform, 'translate(' + data.x + 'px,' + (self.previewStyle.y + data.y) + 'px)')
+          self.photoCanvas.hammer('setLastPos', {
+            x: self.previewStyle.x,
+            y: self.previewStyle.y
+          })
+          var snapStyle = Object.assign({},self.previewStyle)
+          self.resetImg = function(){
+            self.previewStyle = Object.assign({},snapStyle)
+            $preview
+            .css({ width: data.width, height: data.height })
+            .css(transform, 'translate(' + data.x + 'px,' + (snapStyle.y + data.y) + 'px)')
+            $previewView
+            .css(transform, 'scale(' + 1 / snapStyle.ratio + ')')
+            $photoCanvas.hammer('reset').hammer('setLastPos', {
+              x: snapStyle.x,
+              y: snapStyle.y
+            })
+          }
           myCrop.setCropStyle(self.previewStyle)
           myCropInfo = myCrop.getCropInfo()
           self.isLoading = false
@@ -765,12 +787,12 @@ export default {
 }
 @font-face {
   font-family: 'tomiconfont';  /* project id 1797026 */
-  src: url('//at.alicdn.com/t/font_1797026_0vnkgomdh1j.eot');
-  src: url('//at.alicdn.com/t/font_1797026_0vnkgomdh1j.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_1797026_0vnkgomdh1j.woff2') format('woff2'),
-  url('//at.alicdn.com/t/font_1797026_0vnkgomdh1j.woff') format('woff'),
-  url('//at.alicdn.com/t/font_1797026_0vnkgomdh1j.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_1797026_0vnkgomdh1j.svg#tomiconfont') format('svg');
+  src: url('//at.alicdn.com/t/font_1797026_u8wcbrbphs8.eot');
+  src: url('//at.alicdn.com/t/font_1797026_u8wcbrbphs8.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_1797026_u8wcbrbphs8.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_1797026_u8wcbrbphs8.woff') format('woff'),
+  url('//at.alicdn.com/t/font_1797026_u8wcbrbphs8.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_1797026_u8wcbrbphs8.svg#tomiconfont') format('svg');
 }
 .tomiconfont {
   font-family: "tomiconfont" !important;
@@ -789,6 +811,9 @@ export default {
 
 .icon_zoomin_light:before {
   content: "\e617";
+}
+.icon_chexiao:before {
+  content: "\e618";
 }
 
 

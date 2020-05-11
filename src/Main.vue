@@ -26,7 +26,6 @@ export default {
       this.cropYou = data.base64
     },
     onError(err){
-        console.log(err)
     }
   },
   components: {
