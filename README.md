@@ -1,5 +1,9 @@
 # 图片裁剪
 
+## 效果截图
+
+![image](https://github.com/superchangme/ImageCropping/blob/master/src/assets/snap1.png)
+
 ## Project setup
 ```
 npm install
