@@ -1,8 +1,6 @@
 # 图片裁剪
 
 ## 效果截图
-
-![image]()
  <img width="360px" src="https://raw.githubusercontent.com/superchangme/ImageCropping/master/src/assets/snap1.png">
 
 ## Project setup
