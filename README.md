@@ -2,7 +2,8 @@
 
 ## 效果截图
 
-![image](https://github.com/superchangme/ImageCropping/blob/master/src/assets/snap1.png)
+![image]()
+ <img width="360px" src="https://raw.githubusercontent.com/superchangme/ImageCropping/master/src/assets/snap1.png">
 
 ## Project setup
 ```
