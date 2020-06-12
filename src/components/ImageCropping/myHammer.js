@@ -1,5 +1,6 @@
 var $ = require('jquery')
 import Hammer from './hammer.min'
+// import TouchEmulator from './touch-emulator'
 $.fn.hammer = Plugin
 $.fn.hammer.Constructor = Myhammer
 $.fn.hammer.noConflict = function() {
@@ -21,6 +22,9 @@ function Plugin(opt, params) {
        }*/
   })
 }
+// if(process.env.NODE_ENV==='development') {
+//   TouchEmulator()
+// }
 Myhammer.DEFAULTS = {
   transform_always_block: true,
   transform_min_scale: 1,
@@ -69,6 +73,7 @@ function Myhammer(canvas, opts) {
         // last_rotation = self.rotation
         break
       case 'panmove':
+        if (!opts.enableRotate&&self.rotateLock) {return}
         var x = ev.deltaX / self.scale * self.ratio
         var y = ev.deltaY / self.scale * self.ratio
         var coordRad=Math.atan2(-y,x);
@@ -96,9 +101,13 @@ function Myhammer(canvas, opts) {
           }
           last_rotation = ev.rotation
         }
+        self.rotateLock = true
         // self.rotation = last_rotation ;
         self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
         opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation })
+        break
+      case 'rotateend':
+        self.rotateLock = false
         break
       case 'panend':
         self.lastPosX = posX
