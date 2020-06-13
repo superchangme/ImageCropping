@@ -146,7 +146,7 @@ export default {
       type: String
     },
     dataShow: {
-      type: Boolean,
+      type: [Boolean,Number],
       default: false
     },
     dataWidth: {

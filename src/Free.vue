@@ -19,7 +19,7 @@ export default {
   },
   methods:{
     showCrop(){
-      this.dataShow=true
+      this.dataShow++
     },
     onSuccess(data){
       this.dataShow =false

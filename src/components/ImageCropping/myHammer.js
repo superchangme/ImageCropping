@@ -73,7 +73,6 @@ function Myhammer(canvas, opts) {
         // last_rotation = self.rotation
         break
       case 'panmove':
-        if (!opts.enableRotate&&self.rotateLock) {return}
         var x = ev.deltaX / self.scale * self.ratio
         var y = ev.deltaY / self.scale * self.ratio
         var coordRad=Math.atan2(-y,x);
@@ -106,8 +105,9 @@ function Myhammer(canvas, opts) {
         self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
         opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation })
         break
+      case 'rotatecancel':
+        break;
       case 'rotateend':
-        self.rotateLock = false
         break
       case 'panend':
         self.lastPosX = posX
