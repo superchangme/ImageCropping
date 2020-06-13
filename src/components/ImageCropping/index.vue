@@ -666,7 +666,7 @@ export default {
       }
       self.boundCheckFn = boundCheck
       $photoCanvas.hammer({
-        minScale: 0.5,
+        minScale: self.dataRotate?0.5:1,
         minscaleDisabled: false,
         maxScale: 3,
         enableRatio: self.dataEnableRatio,
