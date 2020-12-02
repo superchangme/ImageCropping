@@ -23,7 +23,7 @@
     >
       <img id="previewResult" v-show="false" />
       <img id="needCropImg" v-show="false" :src="imgSrc" />
-      <div v-loading="isLoading" element-loading-text="加载中...">
+      <div v-loading="isLoading" element-loading-text="加载中..." class="full-loading">
         <div :class="{ isOpacity: isLoading }" class='center-container'>
           <div class="upload-loading">
             <span class="centerXY"
@@ -38,8 +38,7 @@
               <div class="crop_line_x2"></div>
               <div class="crop_line_y1 crop_liney"></div>
               <div class="crop_line_y2 crop_liney"></div>
-            </div>
-            <!-- 最底 -->
+              <!-- 最底 -->
               <div class="inner">
                 <div class="preview-box">
                   <div class="preview-view"><img id="preview" v-show="previewSrc"/></div>
@@ -47,7 +46,7 @@
               </div>
               <!-- 最高 -->
               <canvas class="photo-canvas"> </canvas>
-            
+            </div>
           </div>
           <div class="crop-box">
              <div class="crop-tool clearfix">
@@ -884,6 +883,13 @@ export default {
     width:100%!important;
     height:100%!important;
     margin:0!important;
+    .el-dialog__body,.full-loading{
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    }
     .preview-wrapper{
       border: none;
       overflow: initial;
@@ -902,6 +908,9 @@ export default {
         float:right;
       }
     }
+    .crop-box{
+      display: inline;
+    }
     .crop-tool{
       position: absolute;
       left:0;
@@ -909,9 +918,14 @@ export default {
       bottom:10%;
       z-index: 10;
       text-align: center;
-      &>div{
+      &>*{
         display: inline-block;
         float: none;
+        vertical-align: middle;
+        margin-bottom: 0;
+      }
+      *{
+        color: white!important;
       }
     }
     .center-container{
@@ -932,18 +946,29 @@ export default {
         vertical-align: middle;
       }
     }
-  }
-    .upload-mask {
-      width: 100vw;
-      height:100vh;
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      z-index: 3;
+    .upload-main {
+      .upload-mask {
+        width: 100vw;
+        height:100vh;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        z-index: 3;
+        display: block;
+      }
+      .preview-wrapper {
+        .inner {
+          overflow: visible;
+        }
+      }
     }
+  }
+    
   .upload-main {
     // position: relative;
-
+    .upload-mask{
+      display: none;
+    }
     .photo-canvas {
       position: absolute;
       left: 0px;
