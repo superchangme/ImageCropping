@@ -53,8 +53,8 @@ function Myhammer(canvas, opts) {
   mc.add(new Hammer.Pan({ threshold: 0, pointers: 0 }))
   // mc.add(new Hammer.Swipe()).recognizeWith(mc.get('pan'))
   mc.add(new Hammer.Rotate({ threshold: 0 })).recognizeWith(mc.get('pan'))
-  mc.add(new Hammer.Pinch({ threshold: 0 })).recognizeWith([mc.get('pan'), mc.get('rotate')])
-  this.gestureNames = 'panstart panmove panend rotatemove'
+  mc.add(new Hammer.Pinch({ threshold: 0 })).recognizeWith([mc.get('rotate')])
+  this.gestureNames = 'panstart panmove panend  pinchstart pinchmove pinchend rotatemove rotateend'
   hammertime.on(this.gestureNames, hammerFn)
   this.hammertime = hammertime
   function hammerFn(ev) {
@@ -69,11 +69,13 @@ function Myhammer(canvas, opts) {
   function manageMultitouch(ev) {
     switch (ev.type) {
       case 'panstart':
+      case 'pinchstart':
         last_scale = self.scale
         // last_rotation = self.rotation
         break
       case 'panmove':
-        if (!opts.enableRotate&&self.rotateLock) {return}
+        if (!opts.enableRotate&&self.rotateLock || self.pinchMoving) {return}
+        self.panMoving = true
         var x = ev.deltaX / self.scale * self.ratio
         var y = ev.deltaY / self.scale * self.ratio
         var coordRad=Math.atan2(-y,x);
@@ -95,6 +97,7 @@ function Myhammer(canvas, opts) {
         opts.gestureCb.call(self, { x: posX, y: posY, scale: last_scale, rotate: self.rotation })
         break
       case 'rotatemove':
+        if (self.panMoving) { return}
         if (opts.enableRotate){
           if (last_rotation!=null){
             self.rotation = self.rotation + (ev.rotation - last_rotation)
@@ -103,20 +106,35 @@ function Myhammer(canvas, opts) {
         }
         self.rotateLock = true
         // self.rotation = last_rotation ;
-        self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
-        opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation })
+        // self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
+        opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation },true,true)
         break
       case 'rotateend':
         self.rotateLock = false
         break
+      case 'pinchmove':
+        if (self.panMoving) { return}
+        self.pinchMoving = true
+        self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
+        opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation },true,true)
+        last_scale = self.scale
+        break
+      case 'pinchend':
+        self.pinchMoving = false
+        break
       case 'panend':
-        self.lastPosX = posX
-        self.lastPosY = posY
+        self.panMoving = false
+        if (opts.dragendCb) {
+          opts.dragendCb.call(self,function(x,y){
+            self.lastPosX = x
+            self.lastPosY = y
+          })
+        } else {
+          self.lastPosX = lastPosX
+          self.lastPosY = lastPosY
+        }
         last_scale = self.scale
         last_rotation = null
-        if (opts.dragendCb) {
-          opts.dragendCb.call(self)
-        }
         break
     }
   }
@@ -126,6 +144,7 @@ function Myhammer(canvas, opts) {
     bufferX = 0; bufferY = 0
     this.scale = 1; last_scale = 1; this.rotation = 0; last_rotation = null
   }
+  // window.optsA = opts
 }
 Myhammer.prototype.stop = function() {
   this.isStop = true

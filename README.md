@@ -1,7 +1,7 @@
 # 图片裁剪
 
 ## 效果截图
- <img width="360px" src="https://raw.githubusercontent.com/superchangme/ImageCropping/master/src/assets/snap1.png">
+<img width="360px" src="https://raw.githubusercontent.com/superchangme/ImageCropping/master/src/assets/snap2.png">
 
 ## Project setup
 ```

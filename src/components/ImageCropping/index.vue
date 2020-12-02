@@ -240,10 +240,12 @@ export default {
   // },
   watch: {
     dataImgSrc: function(nval,oval){
-      setTimeout(()=>{
+      if (nval) {
         this.isLoading = true
+      }
+      setTimeout(()=>{
         this.imgSrc = nval
-      },50)
+      },100)
     },
     dataShow: function(nval) {
       if (nval) {
@@ -289,7 +291,7 @@ export default {
       }
       this.photoCanvas.hammer('setScale', {
         souce: 'userClick',
-        step: 0.1
+        step: 0.618
       })
     },
     scaleReduce() {
@@ -299,7 +301,7 @@ export default {
       }
       this.photoCanvas.hammer('setScale', {
         souce: 'userClick',
-        step: -0.1
+        step: -0.618
       })
     },
     rotateImg() {
@@ -309,8 +311,8 @@ export default {
         return
       }
       self.previewStyle.rotate += 90
-      if (self.previewStyle.rotate >= 360) {
-        self.previewStyle.rotate -= 360
+      if (self.previewStyle.rotate >= 18000) {
+        self.previewStyle.rotate -= 18000
       }
       self.photoCanvas.hammer('setRotate', self.previewStyle.rotate)
       self.boundCheckFn(self.previewStyle, true)
@@ -430,6 +432,7 @@ export default {
         myCropInfo,
         backX,
         backY,
+        backScale,
         maxOffset = 40
       self.photoCanvas = $photoCanvas
       self.preview = $preview
@@ -492,6 +495,7 @@ export default {
           }
           self.isLoading = true
           self.showCropBody = true
+          
         },
         onError: function() {
           // 非图片格式或者图片格式有问题导致无法使用error传给外部
@@ -550,6 +554,12 @@ export default {
           myCrop.setCropStyle(self.previewStyle)
           myCropInfo = myCrop.getCropInfo()
           self.isLoading = false
+          // optsA.gestureCb({x:100,y:200,scale:1,rotate:0})
+          // optsA.dragendCb()
+          //           optsA.gestureCb({x:10,y:20,scale:0.1,rotate:0},true,true)
+          // setTimeout(function(){
+          //   optsA.dragendCb()
+          // },1000)
         }
       })
       self.cropInstance = myCrop
@@ -567,7 +577,7 @@ export default {
       }
       this.resetUserOpts = resetUserOpts
       this.uploadPage = $uploadPage
-      function boundCheck(G, fromScale) {
+      function boundCheck(G, fromScale, needScaleBack) {
         // debugger
         if (!self.isBoundCheck) {
           return
@@ -581,7 +591,7 @@ export default {
         // rx>0 -myCropInfo.x*G.scale+G.x>0
         // ty -myCropInfo.y*G.scale-G.y>0
         // by myCropInfo.y*G.scale+G.y<0
-        backX = backY = null
+        backX = backY = backScale = null
         var cwidth = opts.cropWidth - self.outXy.outx * 2
         var cheight = opts.cropHeight - self.outXy.outy * 2
         if (G.rotate % 180 != 0) {
@@ -626,9 +636,16 @@ export default {
               (cwidth * G.ratio) / 2 / (dWidth / 2 + G.x)
             )
           }
-          G.scale = scale
+          if (needScaleBack) {
+            backScale = scale
+          } else {
+            G.scale = scale
+          }
         } else {
           // 到达最大边缘则在最大基础上再扩展maxOffset距离,后面动画弹回
+          if (backScale) {
+            scale = backScale
+          }
           if (-sy + G.y * scale > 0) {
             // console.log('to top y')
             // G.y = sy / scale
@@ -663,6 +680,7 @@ export default {
           }
         }
         if (oldScale != G.scale) {
+          backScale = G.scale
           $photoCanvas.hammer('setScale', {
             source: 'boundFix',
             scale: G.scale
@@ -686,7 +704,7 @@ export default {
           // }
           // console.log('scale change---',scale)
         },
-        dragendCb: function() {
+        dragendCb: function(cb) {
           var transformStr = $preview.css(transform).replace(/\s/g, '')
           // 获取matrix矩阵后两位 x y替换掉
           if (transformStr.indexOf('3d') > -1) {
@@ -711,6 +729,19 @@ export default {
           if (backY != null) {
             self.previewStyle.y = backY
           }
+          if (cb) {
+            cb(self.previewStyle.x,self.previewStyle.y)
+          }
+          var time = 0.2
+          if (backScale != null) {
+            var ratio = self.previewStyle.scale/backScale
+            time = 0.2 * Math.pow( ratio > 1 ? ratio : 1/ratio,1/3)
+            self.previewStyle.scale = backScale
+            $photoCanvas.hammer('setScale', {
+              source: 'boundFix',
+              scale: backScale
+            })
+          }
           $('.photo-canvas').hammer('setLastPos', {
             x: self.previewStyle.x,
             y: self.previewStyle.y
@@ -719,7 +750,7 @@ export default {
             $preview.css('transition', '')
           })
           $preview.css({
-            transition: 'all 0.2s',
+            transition: 'all '+ time + 's',
             transform:
               'translate3d(' +
               (self.previewStyle.x + self.previewStyle.offSetX) +
@@ -728,6 +759,7 @@ export default {
               'px,0)'
           })
           $previewView.css({
+            transition: 'all '+ time + 's',
             transform:
               'rotate(' +
               self.previewStyle.rotate +
@@ -736,14 +768,14 @@ export default {
               ') translate3d(0,0,0)'
           })
         },
-        gestureCb: function(o, fromScale) {
+        gestureCb: function(o, fromScale, needScaleBack) {
           // 每次缩放拖拽的回调
           var G = Object.assign({}, o, {
             ratio: self.previewStyle.ratio,
             offSetY: self.previewStyle.offSetY,
             offSetX: self.previewStyle.offSetX
           })
-          boundCheck(G, fromScale)
+          boundCheck(G, fromScale, needScaleBack)
           self.previewStyle.scale = G.scale
           $preview.css(
             transform,
