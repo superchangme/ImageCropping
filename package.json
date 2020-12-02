@@ -1,0 +1,61 @@
+{
+  "name": "image-crop",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": "https://superchangme.github.io/ImageCropping",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "predeploy": "npm run build",
+    "deploy": "NODE_DEBUG=gh-pages gh-pages -d dist"
+  },
+  "dependencies": {
+    "core-js": "^3.4.4",
+    "element-ui": "^2.13.0",
+    "jquery": "^3.4.1",
+    "single-spa-vue": "^1.5.2",
+    "systemjs-webpack-interop": "^1.1.0",
+    "vue": "^2.6.10",
+    "vue-i18n": "^8.16.0",
+    "vue-router": "^3.1.6"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.1.0",
+    "@vue/cli-plugin-eslint": "^4.1.0",
+    "@vue/cli-service": "^4.1.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "gh-pages": "^2.2.0",
+    "node-sass": "^4.13.1",
+    "sass-loader": "^8.0.2",
+    "vue-cli-plugin-single-spa": "^1.1.0",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.42.1"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "no-undef": "off",
+      "no-console": "off",
+      "no-useless-escape": 0,
+      "no-cond-assign": "off"
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
