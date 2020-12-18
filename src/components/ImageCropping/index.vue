@@ -797,20 +797,38 @@ export default {
       }
     },
     makeCropBg($mask,maskCtx,opts){
-      $mask.prop({width:$mask.width(),height:$mask.height()})
-      maskCtx.fillStyle="rgba(0,0,0,0.7)";
-      maskCtx.fillRect(0,0,$mask.width(),$mask.height());
+      const deviceRatio = window.devicePixelRatio || 1
+      const width = $mask.width()*deviceRatio
+      const height = $mask.height()*deviceRatio
+      const cropWidth = opts.cropWidth*deviceRatio
+      const cropHeight = opts.cropHeight*deviceRatio
+      $mask.prop({width,height})
+      maskCtx.fillStyle="rgba(0,0,0,0.45)";
+      maskCtx.fillRect(0,0,width,height);
       maskCtx.strokeStyle='white';
       maskCtx.lineWidth='2'
       if (this.dataCircle) {
+        maskCtx.save()
         maskCtx.globalCompositeOperation = 'destination-out'
-        maskCtx.arc($mask.width()/2, $mask.height()/2, opts.cropWidth/2, 0, Math.PI * 2, false);
+        maskCtx.beginPath();
+        maskCtx.fillStyle="red";
+        maskCtx.arc(width/2, height/2, cropWidth/2, 0, Math.PI * 2, false);
         maskCtx.fill()
+        maskCtx.restore()
+        maskCtx.save()
+        const lineWidth = Math.max(deviceRatio,2)
+        maskCtx.lineWidth= lineWidth
+        maskCtx.arc(width/2, height/2,cropWidth/2 - lineWidth, 0, Math.PI * 2, false);
+        maskCtx.stroke()
+        maskCtx.restore()
+        maskCtx.lineWidth='1'
+        maskCtx.strokeStyle='grey';
+        maskCtx.arc(width/2, height/2,cropWidth/2 - lineWidth-1, 0, Math.PI * 2, false);
+        maskCtx.stroke()
       } else {
-        maskCtx.clearRect(($mask.width()-opts.cropWidth)/2,($mask.height()-opts.cropHeight)/2,opts.cropWidth,opts.cropHeight)
-        maskCtx.strokeRect(($mask.width()-opts.cropWidth)/2-1,($mask.height()-opts.cropHeight)/2-1,opts.cropWidth+2,opts.cropHeight+2);//Add a subpath with four points
+        maskCtx.clearRect((width-cropWidth)/2,(height-cropHeight)/2,cropWidth,cropHeight)
+        maskCtx.strokeRect((width-cropWidth)/2-1,(height-cropHeight)/2-1,cropWidth+2,cropHeight+2);//Add a subpath with four points
       }
-
     }
   },
 
@@ -915,6 +933,7 @@ export default {
     width:100%!important;
     height:100%!important;
     margin:0!important;
+    background: black;
     .el-dialog__body,.full-loading{
       position: absolute;
       left: 0;
@@ -1032,7 +1051,6 @@ export default {
     // }
     #preview {
       display: block;
-      background: white;
       z-index: 1;
     }
     .upload-loading {

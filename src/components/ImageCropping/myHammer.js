@@ -117,10 +117,10 @@ function Myhammer(canvas, opts) {
         self.pinchMoving = true
         self.scale = Math.max(opts.minScale || 0, Math.min(last_scale * ev.scale, 10))
         opts.gestureCb.call(self, { x: self.lastPosX, y: self.lastPosY, scale: self.scale, rotate: self.rotation },true,true)
-        last_scale = self.scale
         break
       case 'pinchend':
         self.pinchMoving = false
+        last_scale = self.scale
         break
       case 'panend':
         self.panMoving = false
@@ -133,7 +133,6 @@ function Myhammer(canvas, opts) {
           self.lastPosX = lastPosX
           self.lastPosY = lastPosY
         }
-        last_scale = self.scale
         last_rotation = null
         break
     }
