@@ -94,7 +94,30 @@ _.cropImage = function(opts) {
             imgFileCb(img)
           }
           setTimeout(function() {
-            img.src = URL.createObjectURL(preview)
+            // img.src = URL.createObjectURL(preview)
+            var formData = new FormData()
+            formData.append('imgFile',preview)
+            if (opts.faceDetect){
+              console.warn("you use a temporary face detect api server, you can implement by yourself:to visit https://ai.baidu.com/ai-doc/BODY/Fk3cpyxua")
+              $.ajax({
+                url: 'https://www.papaya-group.com/wxapi/baiduAi/forground.php',
+                // url:'./upload.php',
+                type: 'post',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(data) {
+                  if(data.foreground){
+                    img.src = 'data:image;base64,'+data.foreground
+                  } else{
+                    img.src  = URL.createObjectURL(preview)
+                  }
+                }
+              })
+            } else {
+              img.src = URL.createObjectURL(preview)
+            }
           }, 0)
         }
       })
@@ -146,24 +169,18 @@ _.cropImage = function(opts) {
     return { x: x, y: y, dWidth: dWidth, dHeight: dHeight, scale: scale, iWidth: iWidth, iHeight: iHeight }
   }
   function getCropFile(option) {
+    let {type,...resetOpt} = opts
+    option = Object.assign({},resetOpt,option)
     // console.log(option)
     // G.y*=opts.devicePixelRatio;
     // G.x*=opts.devicePixelRatio;
     var coordRad = Math.atan2(-G.y, G.x)
     // console.log(coordRad)
     var radius = Math.sqrt(G.y * G.y + G.x * G.x)
-    var o = getCropInfo(),
-      offsetX = Math.sin(Math.PI / 2 - coordRad - Math.PI * (G.rotate) / 180) * radius,
+    var o = getCropInfo(),offsetX = Math.sin(Math.PI / 2 - coordRad - Math.PI * (G.rotate) / 180) * radius,
       offsetY = -Math.cos(Math.PI / 2 - coordRad - Math.PI * (G.rotate) / 180) * radius,
-      x = -o.dWidth / 2 * G.scale + offsetX * opts.devicePixelRatio * 0 + 0,
-      y = -o.dHeight / 2 * G.scale + offsetY * opts.devicePixelRatio * 0 + 0, result
-    option = option || {}
-    if (option.lowDpi && opts.enableRatio) {
-      o.dHeight /= opts.devicePixelRatio
-      o.dWidth /= opts.devicePixelRatio
-      canvas.width /= opts.devicePixelRatio
-      canvas.height /= opts.devicePixelRatio
-    }
+      x = -o.dWidth / 2 * G.scale + offsetX * option.devicePixelRatio * 0 + 0,
+      y = -o.dHeight / 2 * G.scale + offsetY * option.devicePixelRatio * 0 + 0, result
     ctx.save()
     if (option.background) {
       ctx.fillStyle = option.background
@@ -186,35 +203,43 @@ _.cropImage = function(opts) {
     //, 0,0,G.preview.width*G.scale, G.preview.height*G.scale);//,0,0, G.preview.width*G.scale, G.preview.height*G.scale);
     ctx.restore()
     // console.log(offsetX, offsetY, x, y, o.dWidth, o.dHeight)
-    if (opts.isCircle) {
+    if (option.isCircle) {
       ctx.save()
       ctx.globalCompositeOperation="destination-in";
       ctx.arc(canvas.width/2,canvas.height/2,canvas.width/2,0,Math.PI*2)
       ctx.fill()
       ctx.restore()
     }
-    result = canvas.toDataURL('image/' + (option.type ? option.type : opts.isCircle?'png':'jpeg'))
-
-    if (option.lowDpi && opts.enableRatio) {
-      canvas.width *= opts.devicePixelRatio
-      canvas.height *= opts.devicePixelRatio
+    var outCanvas = canvas
+    if (option.lowDpi && option.enableRatio) {
+      let  w= canvas.width,h=canvas.height
+      outCanvas = document.createElement('canvas')
+      outCanvas.width = canvas.width / option.devicePixelRatio
+      outCanvas.height = canvas.height / option.devicePixelRatio
+      outCanvas.getContext('2d').drawImage(canvas,0,0,w,h,0,0,outCanvas.width,outCanvas.height)
     }
+    result = outCanvas.toDataURL('image/' + (option.type ? option.type : option.isCircle?'png':'jpeg'))
+
+    // if (option.lowDpi && opts.enableRatio) {
+    //   canvas.width *= opts.devicePixelRatio
+    //   canvas.height *= opts.devicePixelRatio
+    // }
     // 返回Blob文件
     var quality = null
     var step = 0.02
     function runToBlob() {
-      canvas.toBlob(
+      outCanvas.toBlob(
         function(blob) {
           // Store the created blob at the position
           // of the original file in the files list:
-          if (blob.size > opts.qualitySize * 1024) {
+          if (blob.size > option.qualitySize * 1024) {
             quality = quality ? quality - step : 0.91
             runToBlob()
           } else {
             dfd.resolve(blob)
           }
         }
-        , 'image/' + (option.type ? option.type : opts.isCircle?'png':'jpeg'), quality)
+        , 'image/' + (option.type ? option.type : option.isCircle?'png':'jpeg'), quality)
     }
     var that = this,
       dfd = $.Deferred()

@@ -7,17 +7,30 @@
         <br />
         高度(像素):<input v-model="bHeight" />px
         <br />
+        启用证件照模式: <input type="checkbox" v-model="bFaceDetect" />
+        <br />
+        背景色：<input type="color"  v-model="faceBackground" />
+        <br />
         图片质量:<input type="range" min="50" max="100" v-model="quality" />
+        <br />
+        启用大图: <input type="checkbox" v-model="bBigSize" />
         <br />
         是否圆形:<input type="checkbox" v-model="bCircle" />
         <br />
         <el-button type="second" @click="changeSize">确定修改</el-button>
       </div>
     </fieldset>
-    <img :src="cropYou" width="300" ref="myImg" />
+    <div class="button-group">
     <el-button @click="showCrop" type="primary" class="crop-btn"
       >上传照片</el-button
     >
+     <a :href="cropYou" :download="downloadName" class="mydownload">
+      <el-button @click="downLoad" type="success"
+        >下载照片</el-button
+      >
+    </a>
+    </div>
+        <img v-if="cropYou" :src="cropYou" width="300" ref="myImg" class="myImg" />
     <ImageCrop
       :key="cropKey"
       :data-width="width"
@@ -25,15 +38,17 @@
       :isBoundCheck="true"
       :dataCircle="isCircle"
       :dataEnableRatio="true"
+      :dataFaceDetect="faceDetect"
+      :dataBackground="faceBackground"
+      :dataOriginSize="isOrigin"
       :dataShow="dataShow"
       :limitSize="20480 * 1000"
+      ref='imageCrop'
       @onHide="dataShow = false"
       @onSuccess="onSuccess"
       @onError="onError"
     ></ImageCrop>
-    <el-button @click="downLoad" type="success" style="margin-top: 10px"
-      >下载照片</el-button
-    >
+   
   </div>
 </template>
 
@@ -52,7 +67,13 @@ export default {
       cropKey: 0,
       bCircle: false,
       isCircle: false,
-      quality: 92
+      isOrigin: true,
+      bBigSize: false,
+      quality: 92,
+      downloadName: '',
+      bFaceDetect: true,
+      faceDetect: true,
+      faceBackground: '#ffffff'
     };
   },
   methods: {
@@ -62,37 +83,44 @@ export default {
     onSuccess(data) {
       this.dataShow = false;
       this.cropYou = data.base64;
+      this.downloadName =
+        'ImageCrop-' + this.formatDate(new Date(), 'yyyy-MM-dd_HH_mm_ss');
     },
     onError(err) {},
     changeSize() {
       // reRender plugin
+      let oldW= this.width
+      let oldH = this.height
+      let oldFaceDetect = this.faceDetect
       this.width = +this.bWidth;
       this.height = +this.bHeight;
       this.isCircle = this.bCircle;
-      this.cropKey++;
-      alert('可以点击upload 按钮上传图片了~');
+      this.isOrigin = !this.bBigSize;
+      this.faceDetect = this.bFaceDetect
+      if(oldW != this.width || oldH != this.height || oldFaceDetect != this.faceDetect) {
+        this.cropKey++;
+      }
+      this.$message({
+        showClose: true,
+        message: '已调整参数，请点击上传或重新下载图片~',
+        type: 'success'
+      });
+      if(this.$refs.imageCrop.cropInstance) {
+        this.$refs.imageCrop.getFile({
+          lowDpi: this.isOrigin,
+          isCircle: this.isCircle,
+          background: this.faceBackground
+        })
+      }
     },
     downLoad() {
-      var canvas = document.createElement('canvas');
-      canvas.style.display = 'none';
-      canvas.width = this.width;
-      canvas.height = this.height;
-      document.body.appendChild(canvas);
-      canvas
-        .getContext('2d')
-        .drawImage(
-          this.$refs.myImg,
-          0,
-          0,
-          this.$refs.myImg.naturalWidth,
-          this.$refs.myImg.naturalHeight
-        );
-      var a = document.createElement('a');
-      a.href = canvas.toDataURL('image/jpeg', this.quality / 100);
-      a.download = 'ImageCrop-' + this.formatDate(new Date(), 'yyyy-MM-dd_HH_mm_ss');
-      a.click();
+      this.$message({
+        showClose: true,
+        message: '如果下载失败，请长按图片保存~',
+        type: 'info'
+      });
     },
-    formatDate(date,fmt) {
+    formatDate(date, fmt) {
       var o = {
         'M+': date.getMonth() + 1, //月份
         'd+': date.getDate(), //日
@@ -127,4 +155,18 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.mydownload {
+  display: block;
+  margin:0 auto;
+}
+.button-group{
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+.myImg {
+  margin-top: 10px;
+  border:1px solid #67C23A;
+}
+</style>

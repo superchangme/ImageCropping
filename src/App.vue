@@ -22,7 +22,7 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
-a{
+a[class*=router-link-]{
   display: inline-block;
   margin: 0 15px 15px 0;
 }

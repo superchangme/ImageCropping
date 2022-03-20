@@ -121,6 +121,8 @@
   dataBackground:图片背景默认白色
   dataRotate:是否要支持自由旋转（仅支持移动端）
   dataCircle:是否裁剪为圆
+  dataEnableRatio:是否高清模式
+  dataOriginSize:最终导出图片是否原始大小
  */
 import _$ from 'jquery'
 import T from './index.js'
@@ -131,6 +133,10 @@ export default {
       type: Boolean
     },
     dataEnableRatio:{
+      default: false,
+      type: Boolean
+    },
+    dataOriginSize:{
       default: false,
       type: Boolean
     },
@@ -147,7 +153,7 @@ export default {
       type: String
     },
     dataShow: {
-      type: Boolean,
+      type: [Boolean,Number],
       default: false
     },
     dataWidth: {
@@ -196,6 +202,10 @@ export default {
       default:128
     },
     dataFullScreen: {
+      type: Boolean,
+      default: false
+    },
+    dataFaceDetect: {
       type: Boolean,
       default: false
     }
@@ -321,13 +331,13 @@ export default {
       self.preview.css(self.transform, 'translate3d(' + (self.previewStyle.x + self.previewStyle.offSetX) + 'px,' + (self.previewStyle.y + self.previewStyle.offSetY) + 'px,0)')
     },
     // 获取图片并关闭弹窗返回到表单界面
-    getFile() {
+    getFile(options) {
       const self = this
       self.hasSaved = true
       var cropInfo
       self.cropInstance.setCropStyle(self.previewStyle)
       // 自定义getCropFile({type:"png",background:"red",lowDpi:true})
-      cropInfo = self.cropInstance.getCropFile({ background: this.dataBackground })
+      cropInfo = self.cropInstance.getCropFile({ background: this.dataBackground,lowDpi:this.dataOriginSize,...options })
       // console.log(self.previewStyle, cropInfo)
       // $previewResult.attr("src",cropInfo.src).show();
 
@@ -461,7 +471,7 @@ export default {
       var myCrop = T.cropImage({
         bindFile: bindFile, // 绑定Input file
         //            bindFile:$needCropImg[0],// 绑定一个图片
-        
+        faceDetect: self.dataFaceDetect,
         enableRatio: self.dataEnableRatio, // 是否启用高清,高清得到的图片会比较大
         isCircle: self.dataCircle, // 是否裁剪为圆形
         canvas: $photoCanvas[0], // 放一个canvas对象
