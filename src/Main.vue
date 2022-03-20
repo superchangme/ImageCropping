@@ -106,7 +106,7 @@ export default {
         {
           name:'社保证',
           width:358,
-          height:567
+          height:441
         },
         {
           name:'港澳通行证',
