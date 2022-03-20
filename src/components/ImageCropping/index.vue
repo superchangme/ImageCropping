@@ -7,9 +7,8 @@
       v-show="false"
       accept="image/*;capture=camera"
     />
-
     <el-dialog
-      :custom-class="customClass +' ' + (dataCircle?'circleModel':'')"
+      :custom-class="customClass +' ' + (dataCircle?'circleModel':'') +' ' + (dataFullScreen?'fullScreen':'')"
       :width="(dataWidth+40)+'px'"
       :title="dataTitle"
       :append-to-body="true"
@@ -24,73 +23,75 @@
     >
       <img id="previewResult" v-show="false" />
       <img id="needCropImg" v-show="false" :src="imgSrc" />
-      <div v-loading="isLoading" element-loading-text="加载中...">
-        <div :class="{ isOpacity: isLoading }">
+      <div v-loading="isLoading" element-loading-text="加载中..." class="full-loading">
+        <div :class="{ isOpacity: isLoading }" class='center-container'>
           <div class="upload-loading">
             <span class="centerXY"
               ><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i
             ></span>
           </div>
-          <div class="upload-main">
-            
+          <div class="upload-main center-block">
+            <!-- 中间全屏全屏 -->
+            <canvas class="upload-mask"></canvas>
             <div class="preview-wrapper" id="preview-wrapper">
-              <div class="upload-mask">
               <div class="crop_line_x1"></div>
               <div class="crop_line_x2"></div>
               <div class="crop_line_y1 crop_liney"></div>
               <div class="crop_line_y2 crop_liney"></div>
-            </div>
+              <!-- 最底 -->
               <div class="inner">
                 <div class="preview-box">
                   <div class="preview-view"><img id="preview" v-show="previewSrc"/></div>
                 </div>
               </div>
+              <!-- 最高 -->
               <canvas class="photo-canvas"> </canvas>
             </div>
-            
           </div>
-          <div class="crop-tool clearfix">
-            <a class="fl upload-again" @click="reupload" v-if='!dataFromUrl'>重新上传</a>
-            <div class="fr">
-              <div>
-                <i
-                  class="tomiconfont icon_zoomin_light"
-                  @click="scaleAdd"
-                  title="放大"
-                ></i>
-              </div>
-              <div>
-                <i
-                  class="tomiconfont icon_zoomout_light"
-                  @click="scaleReduce"
-                  title="缩小"
-                ></i>
-              </div>
-              <div>
-                <i
-                  class="tomiconfont icon_rotate"
-                  @click="rotateImg"
-                  title="旋转"
-                ></i>
-              </div>
-              <div>
-                 <i
-                  class="tomiconfont icon_chexiao"
-                  @click="resetImg"
-                  title="撤销"
-                ></i>
+          <div class="crop-box">
+             <div class="crop-tool clearfix">
+              <a class="fl upload-again" @click="reupload" v-if='!dataFromUrl'>重新上传</a>
+              <div class="fr">
+                <div>
+                  <i
+                    class="tomiconfont icon_zoomin_light"
+                    @click="scaleAdd"
+                    title="放大"
+                  ></i>
+                </div>
+                <div>
+                  <i
+                    class="tomiconfont icon_zoomout_light"
+                    @click="scaleReduce"
+                    title="缩小"
+                  ></i>
+                </div>
+                <div>
+                  <i
+                    class="tomiconfont icon_rotate"
+                    @click="rotateImg"
+                    title="旋转"
+                  ></i>
+                </div>
+                <div>
+                  <i
+                    class="tomiconfont icon_chexiao"
+                    @click="resetImg"
+                    title="撤销"
+                  ></i>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="crop-btns" slot="footer">
-            <el-button
-              :disabled="!onceOnload"
-              @click="getFile"
-              type="primary"
-              :loading="hasSaved"
-              >保存</el-button
-            >
-            <el-button @click="$emit('onHide')">取消</el-button>
+            <div class="crop-btns" slot="footer">
+              <el-button
+                :disabled="!onceOnload"
+                @click="getFile"
+                type="primary"
+                :loading="hasSaved"
+                >保存</el-button
+              >
+              <el-button @click="$emit('onHide')">取消</el-button>
+            </div>
           </div>
         </div>
       </div>
@@ -146,7 +147,7 @@ export default {
       type: String
     },
     dataShow: {
-      type: [Boolean,Number],
+      type: Boolean,
       default: false
     },
     dataWidth: {
@@ -193,6 +194,10 @@ export default {
     qualitySize: {
       type: Number,
       default:128
+    },
+    dataFullScreen: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -235,10 +240,12 @@ export default {
   // },
   watch: {
     dataImgSrc: function(nval,oval){
-      setTimeout(()=>{
+      if (nval) {
         this.isLoading = true
+      }
+      setTimeout(()=>{
         this.imgSrc = nval
-      },50)
+      },100)
     },
     dataShow: function(nval) {
       if (nval) {
@@ -252,6 +259,7 @@ export default {
         this.previewSrc = ''
         return
       } else {
+        this.imgSrc = ''
         this.showCropBody = false
         this.hasSaved = false
         this.onceOnload = false
@@ -283,7 +291,7 @@ export default {
       }
       this.photoCanvas.hammer('setScale', {
         souce: 'userClick',
-        step: 0.1
+        step: 0.618
       })
     },
     scaleReduce() {
@@ -293,7 +301,7 @@ export default {
       }
       this.photoCanvas.hammer('setScale', {
         souce: 'userClick',
-        step: -0.1
+        step: -0.618
       })
     },
     rotateImg() {
@@ -303,8 +311,8 @@ export default {
         return
       }
       self.previewStyle.rotate += 90
-      if (self.previewStyle.rotate >= 360) {
-        self.previewStyle.rotate -= 360
+      if (self.previewStyle.rotate >= 18000) {
+        self.previewStyle.rotate -= 18000
       }
       self.photoCanvas.hammer('setRotate', self.previewStyle.rotate)
       self.boundCheckFn(self.previewStyle, true)
@@ -417,7 +425,6 @@ export default {
         $mask = $('.upload-mask'),
         $loading = $('.upload-loading'),
         $eldialogwrapper = root,
-        // maskCtx = $mask[0].getContext('2d'),
         $needCropImg = $('#needCropImg'),
         $previewView = $('.preview-view'),
         $photoCanvas = $('.photo-canvas'),
@@ -425,6 +432,7 @@ export default {
         myCropInfo,
         backX,
         backY,
+        backScale,
         maxOffset = 40
       self.photoCanvas = $photoCanvas
       self.preview = $preview
@@ -487,6 +495,7 @@ export default {
           }
           self.isLoading = true
           self.showCropBody = true
+          
         },
         onError: function() {
           // 非图片格式或者图片格式有问题导致无法使用error传给外部
@@ -545,6 +554,12 @@ export default {
           myCrop.setCropStyle(self.previewStyle)
           myCropInfo = myCrop.getCropInfo()
           self.isLoading = false
+          // optsA.gestureCb({x:100,y:200,scale:1,rotate:0})
+          // optsA.dragendCb()
+          //           optsA.gestureCb({x:10,y:20,scale:0.1,rotate:0},true,true)
+          // setTimeout(function(){
+          //   optsA.dragendCb()
+          // },1000)
         }
       })
       self.cropInstance = myCrop
@@ -562,7 +577,7 @@ export default {
       }
       this.resetUserOpts = resetUserOpts
       this.uploadPage = $uploadPage
-      function boundCheck(G, fromScale) {
+      function boundCheck(G, fromScale, needScaleBack) {
         // debugger
         if (!self.isBoundCheck) {
           return
@@ -576,7 +591,7 @@ export default {
         // rx>0 -myCropInfo.x*G.scale+G.x>0
         // ty -myCropInfo.y*G.scale-G.y>0
         // by myCropInfo.y*G.scale+G.y<0
-        backX = backY = null
+        backX = backY = backScale = null
         var cwidth = opts.cropWidth - self.outXy.outx * 2
         var cheight = opts.cropHeight - self.outXy.outy * 2
         if (G.rotate % 180 != 0) {
@@ -621,9 +636,16 @@ export default {
               (cwidth * G.ratio) / 2 / (dWidth / 2 + G.x)
             )
           }
-          G.scale = scale
+          if (needScaleBack) {
+            backScale = scale
+          } else {
+            G.scale = scale
+          }
         } else {
           // 到达最大边缘则在最大基础上再扩展maxOffset距离,后面动画弹回
+          if (backScale) {
+            scale = backScale
+          }
           if (-sy + G.y * scale > 0) {
             // console.log('to top y')
             // G.y = sy / scale
@@ -658,6 +680,7 @@ export default {
           }
         }
         if (oldScale != G.scale) {
+          backScale = G.scale
           $photoCanvas.hammer('setScale', {
             source: 'boundFix',
             scale: G.scale
@@ -666,7 +689,7 @@ export default {
       }
       self.boundCheckFn = boundCheck
       $photoCanvas.hammer({
-        minScale: self.dataRotate?0.5:1,
+        minScale: 0.5,
         minscaleDisabled: false,
         maxScale: 3,
         enableRatio: self.dataEnableRatio,
@@ -681,7 +704,7 @@ export default {
           // }
           // console.log('scale change---',scale)
         },
-        dragendCb: function() {
+        dragendCb: function(cb) {
           var transformStr = $preview.css(transform).replace(/\s/g, '')
           // 获取matrix矩阵后两位 x y替换掉
           if (transformStr.indexOf('3d') > -1) {
@@ -706,6 +729,19 @@ export default {
           if (backY != null) {
             self.previewStyle.y = backY
           }
+          if (cb) {
+            cb(self.previewStyle.x,self.previewStyle.y)
+          }
+          var time = 0.2
+          if (backScale != null) {
+            var ratio = self.previewStyle.scale/backScale
+            time = 0.2 * Math.pow( ratio > 1 ? ratio : 1/ratio,1/3)
+            self.previewStyle.scale = backScale
+            $photoCanvas.hammer('setScale', {
+              source: 'boundFix',
+              scale: backScale
+            })
+          }
           $('.photo-canvas').hammer('setLastPos', {
             x: self.previewStyle.x,
             y: self.previewStyle.y
@@ -714,7 +750,7 @@ export default {
             $preview.css('transition', '')
           })
           $preview.css({
-            transition: 'all 0.2s',
+            transition: 'all '+ time + 's',
             transform:
               'translate3d(' +
               (self.previewStyle.x + self.previewStyle.offSetX) +
@@ -723,6 +759,7 @@ export default {
               'px,0)'
           })
           $previewView.css({
+            transition: 'all '+ time + 's',
             transform:
               'rotate(' +
               self.previewStyle.rotate +
@@ -731,14 +768,14 @@ export default {
               ') translate3d(0,0,0)'
           })
         },
-        gestureCb: function(o, fromScale) {
+        gestureCb: function(o, fromScale, needScaleBack) {
           // 每次缩放拖拽的回调
           var G = Object.assign({}, o, {
             ratio: self.previewStyle.ratio,
             offSetY: self.previewStyle.offSetY,
             offSetX: self.previewStyle.offSetX
           })
-          boundCheck(G, fromScale)
+          boundCheck(G, fromScale, needScaleBack)
           self.previewStyle.scale = G.scale
           $preview.css(
             transform,
@@ -755,8 +792,46 @@ export default {
           Object.assign(self.previewStyle, G)
         }
       })
+      if (this.dataFullScreen) {
+        this.makeCropBg($mask, $mask[0].getContext('2d'),opts)
+      }
+    },
+    makeCropBg($mask,maskCtx,opts){
+      const deviceRatio = window.devicePixelRatio || 1
+      const width = $mask.width()*deviceRatio
+      const height = $mask.height()*deviceRatio
+      const cropWidth = opts.cropWidth*deviceRatio
+      const cropHeight = opts.cropHeight*deviceRatio
+      $mask.prop({width,height})
+      maskCtx.fillStyle="rgba(0,0,0,0.45)";
+      maskCtx.fillRect(0,0,width,height);
+      maskCtx.strokeStyle='white';
+      maskCtx.lineWidth='2'
+      if (this.dataCircle) {
+        maskCtx.save()
+        maskCtx.globalCompositeOperation = 'destination-out'
+        maskCtx.beginPath();
+        maskCtx.fillStyle="red";
+        maskCtx.arc(width/2, height/2, cropWidth/2, 0, Math.PI * 2, false);
+        maskCtx.fill()
+        maskCtx.restore()
+        maskCtx.save()
+        const lineWidth = Math.max(deviceRatio,2)
+        maskCtx.lineWidth= lineWidth
+        maskCtx.arc(width/2, height/2,cropWidth/2 - lineWidth, 0, Math.PI * 2, false);
+        maskCtx.stroke()
+        maskCtx.restore()
+        maskCtx.lineWidth='1'
+        maskCtx.strokeStyle='grey';
+        maskCtx.arc(width/2, height/2,cropWidth/2 - lineWidth-1, 0, Math.PI * 2, false);
+        maskCtx.stroke()
+      } else {
+        maskCtx.clearRect((width-cropWidth)/2,(height-cropHeight)/2,cropWidth,cropHeight)
+        maskCtx.strokeRect((width-cropWidth)/2-1,(height-cropHeight)/2-1,cropWidth+2,cropHeight+2);//Add a subpath with four points
+      }
     }
   },
+
   beforeDestroy() {
     if (this.photoCanvas) {
       this.photoCanvas.hammer('destroy')
@@ -836,10 +911,16 @@ export default {
   animation: none !important;
   user-select: none;
   z-index: 1998;
+  overflow: hidden;
   // &.cropping-dialog-show{
   //   display: inline-block!important;
   //   z-index: 1998;
   // }
+  .el-dialog__header{
+    z-index: 9;
+    position: relative;
+    background: white;
+  }
   .preview-wrapper{
     border: 4px solid #0094f5;
     box-sizing: content-box;
@@ -848,9 +929,97 @@ export default {
     border-radius: 50%;
     overflow: hidden;
   }
+  &.fullScreen {
+    width:100%!important;
+    height:100%!important;
+    margin:0!important;
+    background: black;
+    .el-dialog__body,.full-loading{
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .preview-wrapper{
+      border: none;
+      overflow: initial;
+      border-radius: 0;
+    }
+    .crop-btns{
+      position: absolute;
+      top:15px;
+      left:15px;
+      right:15px;
+      z-index: 10;
+      button{
+        float:left;
+      }
+      button:first-child{
+        float:right;
+      }
+    }
+    .crop-box{
+      display: inline;
+    }
+    .crop-tool{
+      position: absolute;
+      left:0;
+      right:0;
+      bottom:10%;
+      z-index: 10;
+      text-align: center;
+      &>*{
+        display: inline-block;
+        float: none;
+        vertical-align: middle;
+        margin-bottom: 0;
+      }
+      *{
+        color: white!important;
+      }
+    }
+    .center-container{
+      width: 100vw;
+      height: 100vh;
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      &:after {
+        content: '';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+      }
+      .center-block{
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
+    .upload-main {
+      .upload-mask {
+        width: 100vw;
+        height:100vh;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        z-index: 3;
+        display: block;
+      }
+      .preview-wrapper {
+        .inner {
+          overflow: visible;
+        }
+      }
+    }
+  }
+    
   .upload-main {
-    position: relative;
-
+    // position: relative;
+    .upload-mask{
+      display: none;
+    }
     .photo-canvas {
       position: absolute;
       left: 0px;
@@ -882,7 +1051,6 @@ export default {
     // }
     #preview {
       display: block;
-      background: white;
       z-index: 1;
     }
     .upload-loading {
@@ -904,12 +1072,12 @@ export default {
       transform: translate3d(-50%, -50%, 0);
     }
     .upload-mask {
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      z-index: 3;
+      // height: 100%;
+      // width: 100%;
+      // position: absolute;
+      // top: 0px;
+      // left: 0px;
+      // z-index: 3;
       // div {
       //   height: 2px;
       //   width: 100%;

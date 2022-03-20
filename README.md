@@ -1,7 +1,7 @@
 # 图片裁剪
 
 ## 效果截图
- <img width="360px" src="https://raw.githubusercontent.com/superchangme/ImageCropping/master/src/assets/snap1.png">
+<img width="360px" src="https://raw.githubusercontent.com/superchangme/ImageCropping/master/src/assets/snap2.png">
 
 ## Project setup
 ```
@@ -74,6 +74,7 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
   dataRotate:是否要支持自由旋转（仅支持移动端）
   dataEnableRatio:是否需要高清图片（启用后可适配设备的deviceRatio得到高清图）
   dataCircle: 是否裁剪为圆形 （一般用于移动端头像）
+  dataFullScreen: 是否全屏模式 （一般用于移动端头像，看起来更酷）
 ```
 
 4. 一些说明

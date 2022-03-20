@@ -2,9 +2,9 @@
   <div>
     <img :src='cropYou'>
     <el-button @click='showCrop' class="crop-btn">showCrop</el-button>
-    <ImageCrop :isBoundCheck='true' :dataShow='dataShow' dataTitle='裁剪照片'
-    :dataFromUrl='true' :dataImgSrc='cropImage' dataBackground='#000'
-    @onHide='dataShow=false' @onSuccess='onSuccess'></ImageCrop>
+    <ImageCrop :isBoundCheck='true' :dataShow='dataShow'  dataTitle='裁剪照片' :dataFullScreen='true' :dataCircle="true"
+    :dataFromUrl='true' :dataImgSrc='cropImage'  
+    @onHide='onHide' @onSuccess='onSuccess'></ImageCrop>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ export default {
   data(){
     return {
       dataShow: false,
-      cropYou:null,
+      cropYou:null, 
       cropImage:null,
       image
     }

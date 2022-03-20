@@ -89,7 +89,7 @@ export default {
         );
       var a = document.createElement('a');
       a.href = canvas.toDataURL('image/jpeg', this.quality / 100);
-      a.download = 'ImageCrop-' + this.formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss');
+      a.download = 'ImageCrop-' + this.formatDate(new Date(), 'yyyy-MM-dd_HH_mm_ss');
       a.click();
     },
     formatDate(date,fmt) {
