@@ -35,7 +35,7 @@ the image crop plugin is based on vue,and use element-ui's el-dialog.
 
 ### 基本调用方式
 
-1. 上传图片并裁剪 (upload image and crop) -参考文件src/Main.vue
+1. 上传图片并裁剪/证件照制作 (upload image and crop) -参考文件src/Main.vue
 ```javascript
  <ImageCrop :isBoundCheck='true' :dataShow='dataShow' @onHide='dataShow=0' @onSuccess='onSuccess'></ImageCrop>
 ```

@@ -8,14 +8,14 @@
       accept="image/*;capture=camera"
     />
     <el-dialog
-      :custom-class="customClass +' ' + (dataCircle?'circleModel':'') +' ' + (dataFullScreen?'fullScreen':'')"
+      :custom-class="customClass +' cropping-dialog ' + (dataCircle?'circleModel':'') +' ' + (dataFullScreen?'fullScreen':'')"
       :width="(dataWidth+40)+'px'"
       :title="dataTitle"
       :append-to-body="true"
       :modal="false"
       ref="uploadDialog"
       :visible.sync="showDialog"
-      @open="initCropBody"
+      @opened="initCropBody"
       @close="$emit('onHide')"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
@@ -137,8 +137,7 @@ export default {
       type: Boolean
     },
     dataOriginSize:{
-      default: false,
-      type: Boolean
+      type: Object
     },
     dataRotate:{
       default: false,
@@ -208,6 +207,9 @@ export default {
     dataFaceDetect: {
       type: Boolean,
       default: false
+    },
+    customClass:{
+      type: String
     }
   },
   data() {
@@ -216,7 +218,6 @@ export default {
       token: '',
       show: true,
       showDialog: false,
-      customClass: 'cropping-dialog',
       isInit: false,
       showCropBody: false,
       inputFile: false,
@@ -229,7 +230,8 @@ export default {
       previewStyle: { x: 0, y: 0, scale: 1, rotate: 0, ratio: 1 },
       cropInstance: null,
       previewSrc: '',
-      imgSrc: ''
+      imgSrc: '',
+      initDfd: _$.Deferred()
       // imgErr: false
     }
   },
@@ -253,28 +255,33 @@ export default {
       if (nval) {
         this.isLoading = true
       }
-      setTimeout(()=>{
+      this.initDfd.done(()=>{
         this.imgSrc = nval
-      },100)
+      })
     },
-    dataShow: function(nval) {
-      if (nval) {
-        this.showDialog = true
-        _$(this.$refs.uploadDialog.$el).addClass('hide-element')
-        if (this.dataFromUrl) {
-          this.initCropBody()
+    dataShow:{
+      handler(nval){
+        if (nval) {
+          this.$nextTick(()=>{
+            this.showDialog = true
+            _$(this.$refs.uploadDialog.$el).addClass('hide-element')
+            if (this.dataFromUrl) {
+              // this.initCropBody()
+            } else {
+              this.openChooseFile()
+            }
+          })
+          this.previewSrc = ''
+          return
         } else {
-          this.openChooseFile()
+          this.imgSrc = ''
+          this.showCropBody = false
+          this.hasSaved = false
+          this.onceOnload = false
+          this.showDialog = false
         }
-        this.previewSrc = ''
-        return
-      } else {
-        this.imgSrc = ''
-        this.showCropBody = false
-        this.hasSaved = false
-        this.onceOnload = false
-        this.showDialog = false
-      }
+      },
+      immediate: true
     },
     showCropBody(nv) {
       if (nv) {
@@ -285,15 +292,6 @@ export default {
   },
   methods: {
     resetImg(){},
-    openChooseFile() {
-      if (this.isInit) {
-        this.clickChooseFile()
-      } else {
-        setTimeout(() => {
-          this.clickChooseFile()
-        }, 100)
-      }
-    },
     scaleAdd() {
       // 如果不是图片格式或者已经满足minscale直接退出
       if (!this.onceOnload || this.addDisabled) {
@@ -337,7 +335,7 @@ export default {
       var cropInfo
       self.cropInstance.setCropStyle(self.previewStyle)
       // 自定义getCropFile({type:"png",background:"red",lowDpi:true})
-      cropInfo = self.cropInstance.getCropFile({ background: this.dataBackground,lowDpi:this.dataOriginSize,...options })
+      cropInfo = self.cropInstance.getCropFile({ background: this.dataBackground,originSize:this.dataOriginSize,...options })
       // console.log(self.previewStyle, cropInfo)
       // $previewResult.attr("src",cropInfo.src).show();
 
@@ -382,7 +380,7 @@ export default {
           }
         })
     },
-    clickChooseFile() {
+    openChooseFile() {
       var $file = _$(this.$el)
         .find('input[type=file]')
         .click()
@@ -400,10 +398,10 @@ export default {
         return
       }
       this.isInit = true
-      setTimeout(() => {
+      // setTimeout(() => {
         _$(this.$refs.uploadDialog.$el).attr('dialogmask', 1)
         this.init()
-      }, 50)
+      // }, 50)
     },
     init: function() {
       let self = this
@@ -450,6 +448,8 @@ export default {
       self.previewView = $previewView
       self.document = $document
       self.eldialogwrapper = $eldialogwrapper
+      
+      debugger
       $previewWrap.css({ width: opts.cropWidth, height: opts.cropHeight })
       self.mousemoveFn = function(e) {
         e.preventDefault()
@@ -500,6 +500,7 @@ export default {
         },
         oninit: function() {},
         onChange: function(file) {
+          debugger
           if (!self.showCropBody) {
             resetUserOpts()
           }
@@ -520,6 +521,7 @@ export default {
           self.isLoading = false
         },
         onLoad: function(data) {
+          debugger
           self.onceOnload = true
           
           resetUserOpts()
@@ -805,6 +807,7 @@ export default {
       if (this.dataFullScreen) {
         this.makeCropBg($mask, $mask[0].getContext('2d'),opts)
       }
+      this.initDfd.resolve()
     },
     makeCropBg($mask,maskCtx,opts){
       const deviceRatio = window.devicePixelRatio || 1

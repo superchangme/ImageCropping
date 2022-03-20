@@ -14,8 +14,10 @@
     <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
-  <script src="./vConsole.js"></script>
-  <script>
-    window.vConsole = new window.VConsole();
-  </script>
+  <% if (process.env.NODE_ENV != 'production' ) { %>
+    <script src="./vConsole.js"></script>
+    <script>
+      window.vConsole = new window.VConsole();
+    </script> 
+   <% } %>
 </html>

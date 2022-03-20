@@ -1,6 +1,6 @@
 <template>
   <div id='app'>
-  <router-link to="/">上传头像裁剪</router-link>
+  <router-link to="/">证件照制作</router-link>
   <router-link to="/free">自由旋转裁剪</router-link>
   <router-link to="/cropImage">已有图片裁剪</router-link>
   <keep-alive><router-view/></keep-alive>

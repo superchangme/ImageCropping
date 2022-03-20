@@ -48,7 +48,8 @@
       "no-undef": "off",
       "no-console": "off",
       "no-useless-escape": 0,
-      "no-cond-assign": "off"
+      "no-cond-assign": "off",
+      "no-debugger": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint"

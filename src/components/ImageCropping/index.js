@@ -24,6 +24,25 @@ _.prefixEvent = function(t) {
   }
 }
 
+function uploadFaceDetch(formData,img){
+  $.ajax({
+    url: 'https://www.papaya-group.com/wxapi/baiduAi/forground.php',
+    // url:'./upload.php',
+    type: 'post',
+    data: formData,
+    processData: false,
+    contentType: false,
+    dataType: 'json',
+    success: function(data) {
+      if(data.foreground){
+        img.src = 'data:image;base64,'+data.foreground
+      } else{
+        img.src  = URL.createObjectURL(preview)
+      }
+    }
+  })
+}
+
 // css3 style浏览器兼容
 _.prefixStyle = function(style) {
   return Hammer.prefixed(document.body.style, style)
@@ -58,6 +77,8 @@ _.cropImage = function(opts) {
   $(canvas).prop({ width: opts.cropWidth * opts.devicePixelRatio, height: opts.cropHeight * opts.devicePixelRatio }).css({
     width: opts.cropWidth, height: opts.cropHeight, opacity: 0
   })
+
+  
   if (opts.bindFile) {
     if (typeof opts.bindFile === 'string') {
       opts.onChange()
@@ -93,28 +114,32 @@ _.cropImage = function(opts) {
             URL.revokeObjectURL(preview)
             imgFileCb(img)
           }
+          
           setTimeout(function() {
             // img.src = URL.createObjectURL(preview)
-            var formData = new FormData()
-            formData.append('imgFile',preview)
             if (opts.faceDetect){
               console.warn("you use a temporary face detect api server, you can implement by yourself:to visit https://ai.baidu.com/ai-doc/BODY/Fk3cpyxua")
-              $.ajax({
-                url: 'https://www.papaya-group.com/wxapi/baiduAi/forground.php',
-                // url:'./upload.php',
-                type: 'post',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(data) {
-                  if(data.foreground){
-                    img.src = 'data:image;base64,'+data.foreground
-                  } else{
-                    img.src  = URL.createObjectURL(preview)
-                  }
+              var formData = new FormData()
+              if(preview.size/1024 > 500) {
+                var tempImg = new Image()
+                tempImg.onload = function(){
+                  let canvas = document.createElement('canvas')
+                  let nWidth = Math.min(tempImg.width,1024)
+                  let nHeight = tempImg.height*(nWidth/tempImg.width)
+                  canvas.width = nWidth
+                  canvas.height = nHeight
+                  canvas.getContext('2d').drawImage(tempImg,0,0,tempImg.width,tempImg.height,0,0,nWidth,nHeight)
+                  canvas.toBlob(
+                    function(blob) {
+                      formData.append('imgFile',blob)
+                      uploadFaceDetch(formData,img)
+                    })
                 }
-              })
+                tempImg.src = URL.createObjectURL(preview)
+              } else {
+                formData.append('imgFile',preview)
+                uploadFaceDetch(formData,img)
+              }
             } else {
               img.src = URL.createObjectURL(preview)
             }
@@ -211,11 +236,11 @@ _.cropImage = function(opts) {
       ctx.restore()
     }
     var outCanvas = canvas
-    if (option.lowDpi && option.enableRatio) {
+    if (option.originSize && option.enableRatio) {
       let  w= canvas.width,h=canvas.height
       outCanvas = document.createElement('canvas')
-      outCanvas.width = canvas.width / option.devicePixelRatio
-      outCanvas.height = canvas.height / option.devicePixelRatio
+      outCanvas.width = option.originSize.width
+      outCanvas.height = option.originSize.height
       outCanvas.getContext('2d').drawImage(canvas,0,0,w,h,0,0,outCanvas.width,outCanvas.height)
     }
     result = outCanvas.toDataURL('image/' + (option.type ? option.type : option.isCircle?'png':'jpeg'))

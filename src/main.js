@@ -6,6 +6,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue';
 import i18n from './i18n'
 import router from './router'
+console.log(process)
 // Vue.config.productionTip = false
 Vue.use(Element, {
   size: 'small', // set element-ui default size

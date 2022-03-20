@@ -1,19 +1,22 @@
 <template>
   <div>
     <fieldset>
-      <legend>修改裁剪参数</legend>
+      <legend>修改照片参数</legend>
       <div style="text-align: left">
         宽度(像素):<input v-model="bWidth" />px
         <br />
         高度(像素):<input v-model="bHeight" />px
         <br />
-        启用证件照模式: <input type="checkbox" v-model="bFaceDetect" />
+        证件照尺寸：<select v-model="photoSize" @change="choosePhotoSize">
+          <option :value="index" v-for="(size,index) in photoSizeList" :key="size.name">{{size.name}}</option>
+        </select>
+        <br/>
+        自动消除背景: <input type='checkbox' v-model="bFaceDetect"/>
         <br />
-        背景色：<input type="color"  v-model="faceBackground" />
-        <br />
+        <div v-if='bFaceDetect'>
+          背景色：<input type="color"  v-model="faceBackground" />
+        </div>
         图片质量:<input type="range" min="50" max="100" v-model="quality" />
-        <br />
-        启用大图: <input type="checkbox" v-model="bBigSize" />
         <br />
         是否圆形:<input type="checkbox" v-model="bCircle" />
         <br />
@@ -37,12 +40,14 @@
       :data-height="height"
       :isBoundCheck="true"
       :dataCircle="isCircle"
+      dataTitle="制作证件照"
       :dataEnableRatio="true"
+      :dataOriginSize="originSize"
       :dataFaceDetect="faceDetect"
       :dataBackground="faceBackground"
-      :dataOriginSize="isOrigin"
       :dataShow="dataShow"
       :limitSize="20480 * 1000"
+      customClass="fullscreen-crop"
       ref='imageCrop'
       @onHide="dataShow = false"
       @onSuccess="onSuccess"
@@ -67,18 +72,60 @@ export default {
       cropKey: 0,
       bCircle: false,
       isCircle: false,
-      isOrigin: true,
       bBigSize: false,
       quality: 92,
       downloadName: '',
       bFaceDetect: true,
       faceDetect: true,
-      faceBackground: '#ffffff'
+      faceBackground: '#ffffff',
+      photoSizeList:[
+        {
+
+        },
+        {
+          name:'一寸',
+          width:295,
+          height:413
+        },
+        {
+          name:'二寸',
+          width:413,
+          height:579
+        },
+        {
+          name:'大一寸',
+          width:389,
+          height:567
+        },
+        {
+          name:'小二寸',
+          width:413,
+          height:531
+        },
+        {
+          name:'社保证',
+          width:358,
+          height:567
+        },
+        {
+          name:'港澳通行证',
+          width:390,
+          height:567
+        },
+        {
+          name:'保险资格从业',
+          width:210,
+          height:370
+        }
+      ],
+      photoSize:null,
+      originSize:null
     };
   },
   methods: {
     showCrop() {
       this.dataShow++;
+      this.useOption();
     },
     onSuccess(data) {
       this.dataShow = false;
@@ -86,20 +133,35 @@ export default {
       this.downloadName =
         'ImageCrop-' + this.formatDate(new Date(), 'yyyy-MM-dd_HH_mm_ss');
     },
-    onError(err) {},
-    changeSize() {
-      // reRender plugin
+    onError(err) {
+      console.error(err)
+    },
+    choosePhotoSize(e){
+      let v = this.photoSizeList[this.photoSize]
+      this.bWidth = v.width
+      this.bHeight = v.height
+      let maxWidth = Math.floor(window.innerWidth - 40)
+      this._oWidth = Math.min(v.width,maxWidth)
+      this._oHeight = v.height*(this._oWidth/v.width)
+      this.originSize = {
+        width: this.bWidth,
+        height: this.bHeight
+      }
+    },
+    useOption(){
       let oldW= this.width
       let oldH = this.height
       let oldFaceDetect = this.faceDetect
-      this.width = +this.bWidth;
-      this.height = +this.bHeight;
+      this.width = this._oWidth ? this._oWidth : +this.bWidth;
+      this.height = this._oHeight ? this._oHeight : +this.bHeight;
       this.isCircle = this.bCircle;
-      this.isOrigin = !this.bBigSize;
       this.faceDetect = this.bFaceDetect
       if(oldW != this.width || oldH != this.height || oldFaceDetect != this.faceDetect) {
         this.cropKey++;
       }
+    },
+    changeSize() {
+      // reRender plugin
       this.$message({
         showClose: true,
         message: '已调整参数，请点击上传或重新下载图片~',
@@ -107,7 +169,7 @@ export default {
       });
       if(this.$refs.imageCrop.cropInstance) {
         this.$refs.imageCrop.getFile({
-          lowDpi: this.isOrigin,
+          originSize: this.originSize,
           isCircle: this.isCircle,
           background: this.faceBackground
         })
@@ -168,5 +230,16 @@ export default {
 .myImg {
   margin-top: 10px;
   border:1px solid #67C23A;
+}
+.fullscreen-crop{
+    margin: 0!important;
+    width: 100%!important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.fullscreen-crop .crop-box .crop-btns {
+      display: flex;
+    justify-content: space-evenly;
 }
 </style>
