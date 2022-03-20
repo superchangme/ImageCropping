@@ -81,9 +81,6 @@ export default {
       faceBackground: '#ffffff',
       photoSizeList:[
         {
-
-        },
-        {
           name:'一寸',
           width:295,
           height:413
@@ -154,16 +151,17 @@ export default {
       let oldW= this.width
       let oldH = this.height
       let oldFaceDetect = this.faceDetect
+      let oldCircle = this.isCircle
       this.width = this._oWidth ? this._oWidth : +this.bWidth;
       this.height = this._oHeight ? this._oHeight : +this.bHeight;
       this.isCircle = this.bCircle;
       this.faceDetect = this.bFaceDetect
-      if(oldW != this.width || oldH != this.height || oldFaceDetect != this.faceDetect) {
+      if(oldCircle != this.isCircle || oldW != this.width || oldH != this.height || oldFaceDetect != this.faceDetect) {
         this.cropKey++;
       }
     },
     changeSize() {
-      document.body.style.setProperty('--crop-background',this.faceBackground)
+      this.useOption()
       // reRender plugin
       this.$message({
         showClose: true,

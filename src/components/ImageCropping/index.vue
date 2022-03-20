@@ -8,7 +8,7 @@
       accept="image/*;capture=camera"
     />
     <el-dialog
-      :custom-class="customClass +' cropping-dialog ' + (dataCircle?'circleModel':'') +' ' + (dataFullScreen?'fullScreen':'')"
+      :custom-class="customClass +' cropping-dialog ' + (dataCircle?'circleModel':'') +' ' + (dataFullScreen?'fullScreen':'normal')"
       :width="(dataWidth+40)+'px'"
       :title="dataTitle"
       :append-to-body="true"
@@ -209,7 +209,8 @@ export default {
       default: false
     },
     customClass:{
-      type: String
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -945,8 +946,15 @@ export default {
     box-sizing: content-box;
   }
   &.circleModel .preview-wrapper{
-    border-radius: 50%;
-    overflow: hidden;
+    border-radius: 50%!important;
+    overflow: hidden!important;
+  }
+  &.normal{
+    .crop-tool{
+      a,.fr i{
+         color: #93969d;
+      }
+    }
   }
   &.fullScreen {
     width:100%!important;
@@ -994,8 +1002,8 @@ export default {
         vertical-align: middle;
         margin-bottom: 0;
       }
-      *{
-        color: white!important;
+      a,i{
+        margin: 0 30px;
       }
     }
     .center-container{
@@ -1164,14 +1172,17 @@ export default {
   }
   .crop-tool {
     margin: 12px 0px 12px -4px;
-    .upload-again {
+    .upload-again{
       font-size: 14px;
       line-height: 30px;
-      color: #1374f2;
+      color:white;
+      &:hover{
+        color: #1374f2;
+      }
     }
     .fr {
       i {
-        color: #93969d;
+        color: white;
         font-size: 30px;
         line-height: 30px;
       }
@@ -1184,7 +1195,7 @@ export default {
         text-align: center;
       }
       div:hover {
-        background: #d0e7fd;
+        // background: #d0e7fd;
       }
       i:hover {
         color: #1374f2;
