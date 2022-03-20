@@ -33,7 +33,7 @@
       >
     </a>
     </div>
-        <img v-if="cropYou" :src="cropYou" width="300" ref="myImg" class="myImg" />
+    <img  @click="adjustAgain" v-if="cropYou" :src="cropYou" width="300" ref="myImg" class="myImg" />
     <ImageCrop
       :key="cropKey"
       :data-width="width"
@@ -41,13 +41,14 @@
       :isBoundCheck="true"
       :dataCircle="isCircle"
       dataTitle="制作证件照"
+      :dataFullScreen="true"
       :dataEnableRatio="true"
       :dataOriginSize="originSize"
       :dataFaceDetect="faceDetect"
       :dataBackground="faceBackground"
       :dataShow="dataShow"
       :limitSize="20480 * 1000"
-      customClass="fullscreen-crop"
+      customClass="myphoto-crop"
       ref='imageCrop'
       @onHide="dataShow = false"
       @onSuccess="onSuccess"
@@ -149,6 +150,7 @@ export default {
       }
     },
     useOption(){
+      document.body.style.setProperty('--crop-background',this.faceBackground)
       let oldW= this.width
       let oldH = this.height
       let oldFaceDetect = this.faceDetect
@@ -161,6 +163,7 @@ export default {
       }
     },
     changeSize() {
+      document.body.style.setProperty('--crop-background',this.faceBackground)
       // reRender plugin
       this.$message({
         showClose: true,
@@ -181,6 +184,11 @@ export default {
         message: '如果下载失败，请长按图片保存~',
         type: 'info'
       });
+    },
+    adjustAgain() {
+       if(this.cropYou) {
+         this.$refs.imageCrop.adjustAgain()
+       }
     },
     formatDate(date, fmt) {
       var o = {
@@ -211,6 +219,12 @@ export default {
       return fmt;
     }
   },
+  activated(){
+    document.body.classList.add('myphoto-crop-page')
+  },
+  destroyed(){
+    document.body.classList.remove('myphoto-crop-page')
+  },
   components: {
     ImageCrop
   }
@@ -231,15 +245,10 @@ export default {
   margin-top: 10px;
   border:1px solid #67C23A;
 }
-.fullscreen-crop{
-    margin: 0!important;
-    width: 100%!important;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+body.myphoto-crop-page{
+  --crop-background:white;
 }
-.fullscreen-crop .crop-box .crop-btns {
-      display: flex;
-    justify-content: space-evenly;
+body.myphoto-crop-page .preview-wrapper .inner{
+background: var(--crop-background);
 }
 </style>

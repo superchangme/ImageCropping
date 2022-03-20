@@ -90,7 +90,7 @@
                 :loading="hasSaved"
                 >保存</el-button
               >
-              <el-button @click="$emit('onHide')">取消</el-button>
+              <el-button @click="hide();$emit('onHide')">取消</el-button>
             </div>
           </div>
         </div>
@@ -274,11 +274,7 @@ export default {
           this.previewSrc = ''
           return
         } else {
-          this.imgSrc = ''
-          this.showCropBody = false
-          this.hasSaved = false
-          this.onceOnload = false
-          this.showDialog = false
+          this.hide()
         }
       },
       immediate: true
@@ -291,6 +287,20 @@ export default {
     }
   },
   methods: {
+    hide(){
+      this.imgSrc = ''
+      this.showCropBody = false
+      this.hasSaved = false
+      this.onceOnload = false
+      this.showDialog = false
+    },
+    // 二次修改
+    adjustAgain(){
+      this.showCropBody = true
+      this.hasSaved = false
+      this.onceOnload = true
+      this.showDialog = true
+    },
     resetImg(){},
     scaleAdd() {
       // 如果不是图片格式或者已经满足minscale直接退出
@@ -347,6 +357,7 @@ export default {
       // cropInfo.src cropInfo.dfd
       if (!self.uploadUrl) {
         self.$emit('onHide')
+        self.hide()
       }
       self.uploadUrl &&
         cropInfo.dfd.done(function(blob) {
@@ -393,7 +404,6 @@ export default {
     },
     resetUserOpts: function() {},
     initCropBody() {
-      // debugger
       if (this.isInit) {
         return
       }
@@ -449,7 +459,6 @@ export default {
       self.document = $document
       self.eldialogwrapper = $eldialogwrapper
       
-      debugger
       $previewWrap.css({ width: opts.cropWidth, height: opts.cropHeight })
       self.mousemoveFn = function(e) {
         e.preventDefault()
@@ -500,7 +509,6 @@ export default {
         },
         oninit: function() {},
         onChange: function(file) {
-          debugger
           if (!self.showCropBody) {
             resetUserOpts()
           }
@@ -521,7 +529,6 @@ export default {
           self.isLoading = false
         },
         onLoad: function(data) {
-          debugger
           self.onceOnload = true
           
           resetUserOpts()
@@ -590,7 +597,6 @@ export default {
       this.resetUserOpts = resetUserOpts
       this.uploadPage = $uploadPage
       function boundCheck(G, fromScale, needScaleBack) {
-        // debugger
         if (!self.isBoundCheck) {
           return
         }
